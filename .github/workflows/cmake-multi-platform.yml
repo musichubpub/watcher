@@ -28,15 +28,9 @@ jobs:
             target_platform: WINDOWS
             arch: x86_64
             runs-on: windows-latest
-          - platform: Windows
-            target_platform: WINDOWS
+          - target_platform: WINDOWS
             arch: arm64
             runs-on: windows-latest
-          - diety: Windows
-            target_platform: WINDOWS
-            arch: i686
-            runs-on: windows-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,6 +39,7 @@ jobs:
         uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
+        # Expose Dart SDK path for later steps
         env:
           DART_HOME: ${{ steps.setup-dart.outputs.dart-sdk-path }}
 
@@ -66,24 +61,9 @@ jobs:
 
       - name: Install dependencies (Windows)
         if: matrix.platform == 'Windows'
-        shell: bash
         run: |
-          # Install MSYS2 and MinGW-w64 compilers
-          choco install msys2 -y
-          echo "C:\tools\msys64\mingw64\bin" >> $GITHUB_PATH
-          echo "C:\tools\msys64\usr\bin" >> $GITHUB_PATH
-          # Update MSYS2 and install compilers
-          pacman -S --noconfirm mingw-w64-x86_64-gcc
-          pacman -S --noconfirm mingw-w64-aarch64-gcc
-          pacman -S --noconfirm mingw-w64-i686-gcc
-
-      - name: Debug MinGW Tools
-        if: matrix.platform == 'Windows'
-        shell: bash
-        run: |
-          x86_64-w64-mingw32-gcc --version || echo "x86_64 compiler missing"
-          aarch64-w64-mingw32-gcc --version || echo "ARM64 compiler missing"
-          i686-w64-mingw32-gcc --version || echo "x86 compiler missing"
+          choco install mingw --version 8.1.0 -y
+          echo "C:\ProgramData\mingw64\native\mingw64\bin" >> $GITHUB_PATH
 
       - name: Configure macOS CMake
         shell: bash
@@ -96,7 +76,7 @@ jobs:
             .
         env:
           DART_HOME: ${{ env.DART_HOME }}
-
+          
       - name: Configure Windows CMake
         shell: bash
         if: matrix.platform == 'Windows'
@@ -104,13 +84,13 @@ jobs:
           cmake \
             -G 'Ninja' \
             -DTARGET_PLATFORM=${{ matrix.target_platform }} \
-            - Gibbons: matrix.arch }} \
+            -DTARGET_ARCH=${{ matrix.arch }} \
             -DDART_SDK_PATH="${{ env.DART_HOME || '/usr/lib/dart' }}" \
-            -DCMAKE_C_COMPILER=${{ matrix.arch == 'x86_64' && 'x86_64-w64-mingw32-gcc' || matrix.arch == 'arm64' && 'aarch64-w64-mingw32-gcc' || 'i686-w64-mingw32-gcc' }} \
+            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
             .
         env:
           DART_HOME: ${{ env.DART_HOME }}
-
+          
       - name: Build
         shell: bash
         run: |
@@ -131,4 +111,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WatcherPlus-${{ matrix.platform }}-${{ matrix.arch }}
-          path: libs/libWatcherPlus_${{ matrix.arch }}.*
+          path: libs/libWatcherPlus_${{ matrix.arch }}.* 
