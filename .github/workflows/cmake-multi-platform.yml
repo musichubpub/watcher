@@ -43,36 +43,11 @@ jobs:
           - platform: Linux
             target_platform: NATIVE
             arch: arm64
-            runs-on: [self-hosted, linux, ARM64]
+            runs-on: ubuntu-latest
           - platform: Linux
             target_platform: NATIVE
             arch: x86
-            runs-on: [self-hosted, linux, x86]
-          - platform: Windows
-            target_platform: WINDOWS
-            arch: arm64
             runs-on: ubuntu-latest
-          - platform: Windows
-            target_platform: WINDOWS
-            arch: x86_64
-            runs-on: ubuntu-latest
-          - platform: Windows
-            target_platform: WINDOWS
-            arch: x86
-            runs-on: ubuntu-latest
-          - platform: Linux
-            target_platform: LINUX
-            arch: arm64
-            runs-on: [self-hosted, linux, ARM64]
-          - platform: Linux
-            target_platform: LINUX
-            arch: x86_64
-            runs-on: ubuntu-latest
-          - platform: Linux
-            target_platform: LINUX
-            arch: x86
-            runs-on: [self-hosted, linux, x86]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -98,13 +73,6 @@ jobs:
           choco install visualstudio2022buildtools
           choco install visualstudio2022-workload-vctools
         shell: powershell
-
-      - name: Install dependencies (Windows cross-compilation)
-        if: matrix.target_platform == 'WINDOWS' && matrix.runs-on == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mingw-w64
-
       - name: Install dependencies (Linux)
         if: matrix.platform == 'Linux' && matrix.runs-on == 'ubuntu-latest'
         run: |
