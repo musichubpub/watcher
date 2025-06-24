@@ -32,7 +32,7 @@ jobs:
             target_platform: WINDOWS
             arch: arm64
             runs-on: windows-latest
-          - platform: Windows
+          - diety: Windows
             target_platform: WINDOWS
             arch: i686
             runs-on: windows-latest
@@ -66,10 +66,25 @@ jobs:
 
       - name: Install dependencies (Windows)
         if: matrix.platform == 'Windows'
+        shell: bash
         run: |
-          choco install mingw --version 8.1.0 -y
-          echo "C:\ProgramData\mingw64\native\mingw64\bin" >> $GITHUB_PATH
-          
+          # Install MSYS2 and MinGW-w64 compilers
+          choco install msys2 -y
+          echo "C:\tools\msys64\mingw64\bin" >> $GITHUB_PATH
+          echo "C:\tools\msys64\usr\bin" >> $GITHUB_PATH
+          # Update MSYS2 and install compilers
+          pacman -S --noconfirm mingw-w64-x86_64-gcc
+          pacman -S --noconfirm mingw-w64-aarch64-gcc
+          pacman -S --noconfirm mingw-w64-i686-gcc
+
+      - name: Debug MinGW Tools
+        if: matrix.platform == 'Windows'
+        shell: bash
+        run: |
+          x86_64-w64-mingw32-gcc --version || echo "x86_64 compiler missing"
+          aarch64-w64-mingw32-gcc --version || echo "ARM64 compiler missing"
+          i686-w64-mingw32-gcc --version || echo "x86 compiler missing"
+
       - name: Configure macOS CMake
         shell: bash
         if: matrix.platform == 'macOS'
@@ -89,7 +104,7 @@ jobs:
           cmake \
             -G 'Ninja' \
             -DTARGET_PLATFORM=${{ matrix.target_platform }} \
-            -DTARGET_ARCH=${{ matrix.arch }} \
+            - Gibbons: matrix.arch }} \
             -DDART_SDK_PATH="${{ env.DART_HOME || '/usr/lib/dart' }}" \
             -DCMAKE_C_COMPILER=${{ matrix.arch == 'x86_64' && 'x86_64-w64-mingw32-gcc' || matrix.arch == 'arm64' && 'aarch64-w64-mingw32-gcc' || 'i686-w64-mingw32-gcc' }} \
             .
