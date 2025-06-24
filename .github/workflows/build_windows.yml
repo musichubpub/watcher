@@ -20,6 +20,18 @@ jobs:
             target_platform: WINDOWS
             arch: x86_64
             runs-on: windows-latest
+            toolchain: x86_64-w64-mingw32
+          - platform: Windows
+            target_platform: WINDOWS
+            arch: i686
+            runs-on: windows-latest
+            toolchain: i686-w64-mingw32
+          - platform: Windows
+            target_platform: WINDOWS
+            arch: arm64
+            runs-on: windows-latest
+            toolchain: aarch64-w64-mingw32
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -55,7 +67,7 @@ jobs:
             -DTARGET_PLATFORM=${{ matrix.target_platform }} \
             -DTARGET_ARCH=${{ matrix.arch }} \
             -DDART_SDK_PATH="${{ env.DART_HOME || '/usr/lib/dart' }}" \
-            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+            -DCMAKE_C_COMPILER=${{ matrix.toolchain }}-gcc \
             .
         env:
           DART_HOME: ${{ env.DART_HOME }}
@@ -74,4 +86,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WatcherPlus-${{ matrix.platform }}-${{ matrix.arch }}
-          path: libs/libWatcherPlus_${{ matrix.arch }}.* 
+          path: libs/libWatcherPlus_${{ matrix.arch }}.*
