@@ -84,7 +84,7 @@ jobs:
             -DTARGET_PLATFORM=${{ matrix.target_platform }} \
             -DTARGET_ARCH=${{ matrix.arch }} \
             -DDART_SDK_PATH="${{ env.DART_HOME || '/usr/lib/dart' }}" \
-            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc
+            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
             .
         env:
           DART_HOME: ${{ env.DART_HOME }}
