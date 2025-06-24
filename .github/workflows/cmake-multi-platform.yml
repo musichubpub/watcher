@@ -28,6 +28,14 @@ jobs:
             target_platform: WINDOWS
             arch: x86_64
             runs-on: windows-latest
+          - platform: Windows
+            target_platform: WINDOWS
+            arch: arm64
+            runs-on: windows-latest
+          - platform: Windows
+            target_platform: WINDOWS
+            arch: i686
+            runs-on: windows-latest
 
     steps:
       - name: Checkout repository
@@ -37,7 +45,6 @@ jobs:
         uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
-        # Expose Dart SDK path for later steps
         env:
           DART_HOME: ${{ steps.setup-dart.outputs.dart-sdk-path }}
 
@@ -63,6 +70,10 @@ jobs:
           choco install mingw --version 8.1.0 -y
           echo "C:\ProgramData\mingw64\native\mingw64\bin" >> $GITHUB_PATH
 
+      - name: Debug Directory Contents
+        run: |
+          ls -la
+
       - name: Configure macOS CMake
         shell: bash
         if: matrix.platform == 'macOS'
@@ -74,7 +85,7 @@ jobs:
             .
         env:
           DART_HOME: ${{ env.DART_HOME }}
-          
+
       - name: Configure Windows CMake
         shell: bash
         if: matrix.platform == 'Windows'
@@ -84,11 +95,11 @@ jobs:
             -DTARGET_PLATFORM=${{ matrix.target_platform }} \
             -DTARGET_ARCH=${{ matrix.arch }} \
             -DDART_SDK_PATH="${{ env.DART_HOME || '/usr/lib/dart' }}" \
-            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+            -DCMAKE_C_COMPILER=${{ matrix.arch == 'x86_64' && 'x86_64-w64-mingw32-gcc' || matrix.arch == 'arm64' && 'aarch64-w64-mingw32-gcc' || 'i686-w64-mingw32-gcc' }} \
             .
         env:
           DART_HOME: ${{ env.DART_HOME }}
-          
+
       - name: Build
         shell: bash
         run: |
