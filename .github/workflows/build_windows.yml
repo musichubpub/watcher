@@ -58,7 +58,7 @@ jobs:
         shell: powershell
         run: |
           choco install mingw --version 8.1.0 -y
-          $llvmMingwUrl = "https://github.com/mstorsjo/llvm-mingw/releases/download/20231004/llvm-mingw-20231004-ucrt-x86_64.zip"
+          $llvmMingwUrl = "https://github.com/mstorsjo/llvm-mingw/releases/download/20250613/llvm-mingw-20250613-ucrt-x86_64.zip"
           Invoke-WebRequest -Uri $llvmMingwUrl -OutFile llvm-mingw.zip
           Expand-Archive -Path llvm-mingw.zip -DestinationPath llvm-mingw
           echo "$pwd\llvm-mingw\bin" >> $env:GITHUB_PATH
