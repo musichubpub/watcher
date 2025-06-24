@@ -12,7 +12,7 @@ set(DART_SDK_PATH "" CACHE PATH "Path to Dart SDK")
 
 # Validate target platform and architecture
 set(VALID_PLATFORMS "NATIVE;WINDOWS;LINUX")
-set(VALID_ARCHS "arm64;x86_64;x86/i686;")
+set(VALID_ARCHS "arm64;x86_64;x86;i686;")
 
 if(NOT TARGET_PLATFORM IN_LIST VALID_PLATFORMS)
     message(FATAL_ERROR "Invalid TARGET_PLATFORM: ${TARGET_PLATFORM}. Use one of: ${VALID_PLATFORMS}")
