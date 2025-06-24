@@ -297,10 +297,7 @@ int start_monitor(const char *watch_dir, int64_t dart_port, int32_t recursive, b
   }
 
   LOG_DEBUG("Monitoring %s (press Ctrl+C to stop)\n", _watch_dir);
-#ifdef _WIN32
-#else
-  signal(SIGINT, signal_handler);
-#endif
+
   return 0;
 }
 
