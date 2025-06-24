@@ -1,4 +1,4 @@
-name: Build WatcherPlus for Windows Platforms and Architectures
+name: Build for Windows
 
 on:
   push:
