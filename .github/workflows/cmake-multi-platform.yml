@@ -103,7 +103,7 @@ jobs:
         if: matrix.platform == 'Windows'
         shell: bash
         run: |
-          dumpbin /headers libs/libWatcherPlus_${{ matrix.arch }}.dll | findstr machine
+          objdump -f libs/libWatcherPlus_${{ matrix.arch }}.dll | grep "file format"
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
