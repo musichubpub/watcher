@@ -69,11 +69,7 @@ jobs:
         run: |
           choco install mingw --version 8.1.0 -y
           echo "C:\ProgramData\mingw64\native\mingw64\bin" >> $GITHUB_PATH
-
-      - name: Debug Directory Contents
-        run: |
-          ls -la
-
+          
       - name: Configure macOS CMake
         shell: bash
         if: matrix.platform == 'macOS'
