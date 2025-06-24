@@ -55,22 +55,17 @@ jobs:
           echo "C:\ProgramData\chocolatey\bin" >> $GITHUB_PATH
 
       - name: Install dependencies (Windows)
+        shell: powershell
         run: |
-          # 安装标准 MinGW
           choco install mingw --version 8.1.0 -y
-          # 安装 ARM64 和 i686 交叉编译工具链
-          choco install mingw-llvm -y
-          echo "C:\ProgramData\mingw64\bin" >> $GITHUB_PATH
-          echo "C:\ProgramData\llvm-mingw\bin" >> $GITHUB_PATH
-      - name: Verify Compilers
-        run: |
-          where aarch64-w64-mingw32-gcc
-          where i686-w64-mingw32-gcc
-          where x86_64-w64-mingw32-gcc
+          $llvmMingwUrl = "https://github.com/mstorsjo/llvm-mingw/releases/download/20231004/llvm-mingw-20231004-ucrt-x86_64.zip"
+          Invoke-WebRequest -Uri $llvmMingwUrl -OutFile llvm-mingw.zip
+          Expand-Archive -Path llvm-mingw.zip -DestinationPath llvm-mingw
+          echo "$pwd\llvm-mingw\bin" >> $env:GITHUB_PATH
+          
       - name: Configure Windows CMake
         shell: bash
         run: |
-          # 根据架构设置编译器路径
           if [ "${{ matrix.arch }}" = "arm64" ]; then
             export CC="aarch64-w64-mingw32-gcc"
           elif [ "${{ matrix.arch }}" = "i686" ]; then
@@ -78,7 +73,7 @@ jobs:
           else
             export CC="x86_64-w64-mingw32-gcc"
           fi
-      
+
           cmake \
             -G 'Ninja' \
             -DTARGET_PLATFORM=${{ matrix.target_platform }} \
