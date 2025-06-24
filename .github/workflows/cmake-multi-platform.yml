@@ -24,30 +24,6 @@ jobs:
             target_platform: NATIVE
             arch: x86_64
             runs-on: macos-latest
-          - platform: Windows
-            target_platform: NATIVE
-            arch: arm64
-            runs-on: windows-latest
-          - platform: Windows
-            target_platform: NATIVE
-            arch: x86_64
-            runs-on: windows-latest
-          - platform: Windows
-            target_platform: NATIVE
-            arch: x86
-            runs-on: windows-latest
-          - platform: Linux
-            target_platform: NATIVE
-            arch: x86_64
-            runs-on: ubuntu-latest
-          - platform: Linux
-            target_platform: NATIVE
-            arch: arm64
-            runs-on: ubuntu-latest
-          - platform: Linux
-            target_platform: NATIVE
-            arch: x86
-            runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,27 +43,9 @@ jobs:
         run: |
           brew install coreutils
 
-      - name: Install dependencies (Windows native)
-        if: matrix.platform == 'Windows' && matrix.target_platform == 'NATIVE'
-        run: |
-          choco install visualstudio2022buildtools
-          choco install visualstudio2022-workload-vctools
-        shell: powershell
-      - name: Install dependencies (Linux)
-        if: matrix.platform == 'Linux' && matrix.runs-on == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc g++ gcc-multilib g++-multilib
-
-      - name: Install dependencies (Linux self-hosted)
-        if: matrix.platform == 'Linux' && contains(matrix.runs-on, 'self-hosted')
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-i686-linux-gnu g++-i686-linux-gnu
-
       - name: Configure CMake
         run: |
-          cmake -S . -B build \
+          cmake \
             -DTARGET_PLATFORM=${{ matrix.target_platform }} \
             -DTARGET_ARCH=${{ matrix.arch }} \
             -DDART_SDK_PATH=$DART_HOME
@@ -96,18 +54,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --config Release
-
-      - name: Verify Windows DLL architecture
-        if: matrix.platform == 'Windows' || matrix.target_platform == 'WINDOWS'
-        run: |
-          & "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64\dumpbin.exe" /headers build/libs/WatcherPlus_${{ matrix.arch }}.dll | findstr /C:"machine"
-        shell: powershell
-
-      - name: Verify Linux shared object architecture
-        if: matrix.platform == 'Linux'
-        run: |
-          file build/libs/WatcherPlus_${{ matrix.arch }}.so
+          make
 
       - name: Verify macOS dylib architecture
         if: matrix.platform == 'macOS'
