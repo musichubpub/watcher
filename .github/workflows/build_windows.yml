@@ -20,18 +20,6 @@ jobs:
             target_platform: WINDOWS
             arch: x86_64
             runs-on: windows-latest
-            toolchain: x86_64-w64-mingw32
-          - platform: Windows
-            target_platform: WINDOWS
-            arch: i686
-            runs-on: windows-latest
-            toolchain: i686-w64-mingw32
-          - platform: Windows
-            target_platform: WINDOWS
-            arch: arm64
-            runs-on: windows-latest
-            toolchain: aarch64-w64-mingw32
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -55,32 +43,22 @@ jobs:
           echo "C:\ProgramData\chocolatey\bin" >> $GITHUB_PATH
 
       - name: Install dependencies (Windows)
-        shell: powershell
         run: |
           choco install mingw --version 8.1.0 -y
-          $llvmMingwUrl = "https://github.com/mstorsjo/llvm-mingw/releases/download/20250613/llvm-mingw-20250613-ucrt-x86_64.zip"
-          Invoke-WebRequest -Uri $llvmMingwUrl -OutFile llvm-mingw.zip
-          Expand-Archive -Path llvm-mingw.zip -DestinationPath llvm-mingw
-          echo "$pwd\llvm-mingw\bin" >> $env:GITHUB_PATH
-          
+          echo "C:\ProgramData\mingw64\native\mingw64\bin" >> $GITHUB_PATH
+
       - name: Configure Windows CMake
         shell: bash
         run: |
-          if [ "${{ matrix.arch }}" = "arm64" ]; then
-            export CC="aarch64-w64-mingw32-gcc"
-          elif [ "${{ matrix.arch }}" = "i686" ]; then
-            export CC="i686-w64-mingw32-gcc"
-          else
-            export CC="x86_64-w64-mingw32-gcc"
-          fi
-
           cmake \
             -G 'Ninja' \
             -DTARGET_PLATFORM=${{ matrix.target_platform }} \
             -DTARGET_ARCH=${{ matrix.arch }} \
             -DDART_SDK_PATH="${{ env.DART_HOME || '/usr/lib/dart' }}" \
-            -DCMAKE_C_COMPILER=$CC \
+            -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
             .
+        env:
+          DART_HOME: ${{ env.DART_HOME }}
           
       - name: Build
         shell: bash
@@ -96,4 +74,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WatcherPlus-${{ matrix.platform }}-${{ matrix.arch }}
-          path: libs/libWatcherPlus_${{ matrix.arch }}.*
+          path: libs/libWatcherPlus_${{ matrix.arch }}.* 
