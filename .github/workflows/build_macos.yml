@@ -1,4 +1,4 @@
-name: Build WatcherPlus for All Platforms and Architectures
+name: Build for macOS
 
 on:
   push:
